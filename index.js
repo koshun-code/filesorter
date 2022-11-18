@@ -66,15 +66,10 @@ const isDir = (path) => {
 const sortByFoldersName = async (pathToFolder) => {
   const normFiles = await getNormalizeNames(pathToFolder);
   return Object.keys(folders).reduce((acc, key) => {
-
     const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));
-    
     const pathern = folders[key].join("|"); 
-   // console.log(pathern);
     const regExp = new RegExp(pathern, 'giu');
-
     acc[key] = files.filter((file) => file.match(regExp));
-    //console.log(acc);
     return acc;
   }, {});
 };
