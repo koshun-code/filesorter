@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "gendiff": "bin/sortbyfolder.js"
+  },
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["cli", "sort files"],
   "author": "konstantin sitnikov",
   "license": "ISC",
   "dependencies": {
+    "commander": "^9.4.1",
     "lodash": "^4.17.21"
   }
 }
