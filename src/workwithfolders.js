@@ -37,6 +37,8 @@ export const getWordsFromFilename = (fileName) => {
   return _.words(cuteExt);
 }
 
+const getMap = () => JSON.parse(getPath('map.json'));
+
 export const sortByFoldersName = async (pathToFolder) => {
   const map = getMap()
   const normFiles = await getNormalizeNames(pathToFolder); 
