@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
 const { promises: fsp } = fs;
 
 // key - название папки
 // value - массив с сопоставлением для имёт
-const folders = {
+const map = {
   //computer_science: ['refactoring', 'computers','sicp','tdd', 'computer_science', 'reactive', 'operatsionnye', 'programmirovania', 'programmist', 'programming'],
   //algoritms: ['algoritm', 'алгоритмы', 'алгоритм'],
   //css: ['css', 'bootstrap'],
@@ -17,7 +18,7 @@ const folders = {
  // java: ['java', 'spring'],
  // php: ['laravel', 'symfony', 'php'],
   math: ['math','математика', 'математике'],
-  //linux: ['bash', 'linux'],
+  linux: ['bash', 'linux'],
   //ruby: ['ruby', 'ruby on rails', 'rubyist'],
   //db: ['postgresql', 'sql', 'mysql', 'db', 'mongo'],
  // docker:['docker'],
@@ -37,7 +38,6 @@ const move = async (src, dest, data = []) => {
   const fromFolder = getPath(src);
   const toFolder = getPath(dest);
   await data.map(async (item) => {
-    //console.log(`${fromFolder}/${item}`);
     await fsp.copyFile(`${fromFolder}/${item}`,`${toFolder}/${item}`);
     await fsp.unlink(`${fromFolder}/${item}`)
     .then(() => console.log('Success moved'))
@@ -62,21 +62,23 @@ const isDir = (path) => {
   return stat.isDirectory()
 };
 
+const getWordsFromFilename = (fileName) => {
+  const cuteExt = fileName.split('.')[0];
+  return _.words(cuteExt);
+}
 
 const sortByFoldersName = async (pathToFolder) => {
-  const normFiles = await getNormalizeNames(pathToFolder);
-  return Object.keys(folders).reduce((acc, key) => {
-    const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));
-    const pathern = folders[key].join("|"); 
-    const regExp = new RegExp(pathern, 'giu');
-    acc[key] = files.filter((file) => file.match(regExp));
+  const normFiles = await getNormalizeNames(pathToFolder); //array
+  const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));//array of files
+  return Object.keys(map).reduce((acc, key) => {
+    acc[key] = files.filter((file) => _.intersection(getWordsFromFilename(file), map[key]).length > 0);
     return acc;
   }, {});
 };
 const moveToFolder = async (from) => {
   const sortedFiles = await sortByFoldersName(from);
-  console.log(sortedFiles); 
-  return;
+  // console.log(sortedFiles); 
+  // return;
   const res = await Object.keys(sortedFiles).map( async (folder) => {
     const pathsFolder = getPath(`${from}/${folder}`);
     if (!fs.existsSync(pathsFolder)) {
