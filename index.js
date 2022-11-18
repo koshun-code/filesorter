@@ -26,7 +26,7 @@ const map = {
   //rust: ['rust'],
   //api: ['api'],
   haskell: ['haskell'],
-  hacking: ['hacking', 'безопасност[и?|ь?]', 'хакинг[а?|е?]', 'хакер[а?]', 'проникновени[я?|е?]'],
+  hacking: ['hacking', 'безопасност[и?|ь?]', 'хакинг[а?|е?]', 'хакер[а?]', 'проникновени[я?|е?]', 'ловушка'],
   //seo: ['seo'],
   c:['c'],
   //pattertns: ['patterns'],
@@ -59,7 +59,7 @@ const getNormalizeNames = async (pathToFolder) => {
 
 const isDir = (path) => {
   const stat =  fs.statSync(path);
-  return stat.isDirectory()
+  return stat.isDirectory();
 };
 
 const getWordsFromFilename = (fileName) => {
@@ -68,17 +68,21 @@ const getWordsFromFilename = (fileName) => {
 }
 
 const sortByFoldersName = async (pathToFolder) => {
-  const normFiles = await getNormalizeNames(pathToFolder); //array
-  const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));//array of files
+  const normFiles = await getNormalizeNames(pathToFolder); 
+  const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));
   return Object.keys(map).reduce((acc, key) => {
-    acc[key] = files.filter((file) => _.intersection(getWordsFromFilename(file), map[key]).length > 0);
+    acc[key] = files.filter((file) => _.intersectionWith(getWordsFromFilename(file), _.get(map, key), (a, b) => {
+      const regExp = new RegExp(`${b}`);
+      return regExp.test(a);
+    }).length > 0);
     return acc;
   }, {});
 };
+
 const moveToFolder = async (from) => {
   const sortedFiles = await sortByFoldersName(from);
-  // console.log(sortedFiles); 
-  // return;
+  console.log(sortedFiles); 
+  return;
   const res = await Object.keys(sortedFiles).map( async (folder) => {
     const pathsFolder = getPath(`${from}/${folder}`);
     if (!fs.existsSync(pathsFolder)) {
