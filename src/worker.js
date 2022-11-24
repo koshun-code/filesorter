@@ -37,9 +37,15 @@ export const getWordsFromFilename = (fileName) => {
   return _.words(cuteExt);
 }
 
-const getMap = () => JSON.parse(getPath('map.json'));
+const getMap = () => {
+  const pathToMap = getPath('map.json');
+  const file = fs.readFileSync(pathToMap);
+  return JSON.parse(file);
+};
 
 export const sortByFoldersName = async (pathToFolder) => {
+  console.log(getPath('map.json'));
+  //return;
   const map = getMap()
   const normFiles = await getNormalizeNames(pathToFolder); 
   const files =  normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "gendiff": "bin/sortbyfolder.js"
+    "sortbyfolder": "bin/sortbyfolder.js"
   },
   "type": "module",
   "scripts": {
