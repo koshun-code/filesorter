@@ -22,7 +22,7 @@ export const getNormalizeNames = async (pathToFolder) => {
   return files.map((file) => {
     const pattern = /-| /gim; // new RegExp('-|_', 'gim');
     const nFile = file.toLowerCase().replaceAll(pattern, ' ');
-    fs.renameSync(getPath(`${pathToFolder}/${file}`), getPath(`${pathToFolder}/${nFile}`))
+    fs.renameSync(getPath(`${pathToFolder}/${file}`), getPath(`${pathToFolder}/${nFile}`));
     return nFile;
   });
 };
@@ -46,13 +46,14 @@ const getMap = () => {
 export const sortByFoldersName = async (pathToFolder) => {
   console.log(getPath('map.json'));
   const map = getMap();
-  const normFiles = await getNormalizeNames(pathToFolder); 
+  const normFiles = await getNormalizeNames(pathToFolder);
   const files = normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));
   return Object.keys(map).reduce((acc, key) => {
-    acc[key] = files.filter((file) => _.intersectionWith(getWordsFromFilename(file), _.get(map, key), (a, b) => {
-      const regExp = new RegExp(`${b}`);
-      return regExp.test(a);
-    }).length > 0);
+    acc[key] = files
+      .filter((file) => _.intersectionWith(getWordsFromFilename(file), _.get(map, key), (a, b) => {
+        const regExp = new RegExp(`${b}`);
+        return regExp.test(a);
+      }).length > 0);
     return acc;
   }, {});
 };
