@@ -9,27 +9,25 @@ export const getPath = (files) => path.resolve(...files.split('/'));
 export const move = async (src, dest, data = []) => {
   const fromFolder = getPath(src);
   const toFolder = getPath(dest);
-  await data.map(async (item) => {
-    await fsp.copyFile(`${fromFolder}/${item}`, `${toFolder}/${item}`);
-    await fsp.unlink(`${fromFolder}/${item}`)
-      .then(() => console.log('Success moved'))
-      .catch((error) => console.log(error));
-  });
+  await Promise.all(data.map((item) => fsp.copyFile(`${fromFolder}/${item}`, `${toFolder}/${item}`)));
+  await Promise.all(data.map((item) => fsp.unlink(`${fromFolder}/${item}`)
+    .then(() => console.log('Success moved'))
+    .catch(() => console.log('This was a dublicate'))));
 };
 
 export const getNormalizeNames = async (pathToFolder) => {
   const files = await fsp.readdir(pathToFolder);
   return files.map((file) => {
-    const pattern = /-| /gim; // new RegExp('-|_', 'gim');
+    const pattern = /-|_/gim; // new RegExp('-|_', 'gim');
     const nFile = file.toLowerCase().replaceAll(pattern, ' ');
     fs.renameSync(getPath(`${pathToFolder}/${file}`), getPath(`${pathToFolder}/${nFile}`));
     return nFile;
   });
 };
 
-export const isDir = (pathToDir) => {
+export const isFile = (pathToDir) => {
   const stat = fs.statSync(pathToDir);
-  return stat.isDirectory();
+  return stat.isFile();
 };
 
 export const getWordsFromFilename = (fileName) => {
@@ -44,10 +42,10 @@ const getMap = () => {
 };
 
 export const sortByFoldersName = async (pathToFolder) => {
-  console.log(getPath('map.json'));
+  // console.log(getPath('map.json'));
   const map = getMap();
   const normFiles = await getNormalizeNames(pathToFolder);
-  const files = normFiles.filter((file) => !isDir(getPath(`${pathToFolder}/${file}`)));
+  const files = normFiles.filter((file) => isFile(getPath(`${pathToFolder}/${file}`)));
   return Object.keys(map).reduce((acc, key) => {
     acc[key] = files
       .filter((file) => _.intersectionWith(getWordsFromFilename(file), _.get(map, key), (a, b) => {
